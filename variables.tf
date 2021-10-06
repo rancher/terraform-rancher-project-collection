@@ -9,7 +9,7 @@ variable "rancher2" {
 }
 variable "project" {
   type = object({
-    cluster_id              = string
+    cluster_name            = string
     name                    = string
     project_limit           = map(string)
     namespace_default_limit = map(string)

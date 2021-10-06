@@ -6,7 +6,7 @@ locals {
   }
 
   project_info = {
-    cluster_id     = var.project.cluster_id
+    cluster_name   = var.project.cluster_name
     disable_prefix = var.disable_prefix
     name           = var.project.name
     role_bindings = try(flatten([for role_k, role_v in var.project.role_bindings : {

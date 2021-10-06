@@ -1,6 +1,6 @@
 # Provision rancher project
 resource "rancher2_project" "project" {
-  cluster_id = local.project_info.cluster_id
+  cluster_id = data.rancher2_cluster.cluster.id
   name       = local.project_info.name
   dynamic "resource_quota" {
     for_each = try({ for k, v in local.project_info.resource_quota : k => v }, {})
