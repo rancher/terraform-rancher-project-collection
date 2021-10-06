@@ -175,7 +175,7 @@ module "rancher2-project" {
       namespace = "myapp"  # namespace should be added first at variable namespaces
       data = {
         "v1.json" = "[{\"foo\": \"var\"}]"
-        "v2.json" = "#FILE#config/myapp/v2.json"  # Optionally add prefix #FILE#<FILE_PATH> to include the content of a file
+        "v2.json" = file("config/myapp/v2.json")
       }
     }
   }
@@ -195,7 +195,7 @@ module "rancher2-project" {
       repo_name = "myapp_repo"
       chart_name = "myapp_chart"
       chart_version = "myapp_version"
-      values = "#FILE#config/grafana.yaml" # Optionally add prefix #FILE#<FILE_PATH> to include the content of a file
+      values = file("config/grafana.yaml")
     }
   }
 }
