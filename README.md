@@ -4,6 +4,7 @@ Rancher2 terraform module for deploying a project and its resources. This terraf
 
 Module will do following tasks:
 - Connect to Rancher2 server
+- Wait until the cluster is active and all catalgos are downloaded (`wait_for_catalogs` variable)
 - Create Rancher2 project and its resources:
   - apps
   - config maps
@@ -19,14 +20,6 @@ This module accept the following variables as input:
 
 ```
 # Required variables
-variable "rancher2" {
-  type = object({
-    api_url = string
-    insecure = bool
-    token_key = string
-  })
-  description = "Rancher2 config, api_url, insecure and token_key are required"
-}
 variable "project" {
   type = object({
     cluster_id = string
@@ -51,6 +44,11 @@ variable "disable_prefix" {
   type = bool
   default = false
   description = "By default, all project resources names will have the prefix `<project_name>-`. Set this to true to disable it."
+}
+variable "wait_for_catalogs" {
+  type        = bool
+  default     = true
+  description = "By default, project will wait until all catalogs are downloaded. Set this to false to disable it."
 }
 variable "namespaces" {
   type = list(string)
@@ -127,15 +125,16 @@ Requirements for use standalone:
 Add the following to your tf file:
 
 ```
+# Rancher2 provider should be configured here or using env vars
+provider "rancher2" {
+  api_url = <RANCHER_URL>
+  token_key = <RANCHER_TOKEN>
+}
+
 module "rancher2-project" {
-  source = "github.com/rawmind0/terraform-rancher2-project"
+  source = "github.com/rancher/terraform-rancher2-project"
 
   # Required variables
-  rancher2 = {
-    api_url = <RANCHER_URL>
-    insecure = true
-    token_key = <RANCHER_TOKEN>
-  }
   project = {
     cluster_id = "local"
     disable_prefix = true

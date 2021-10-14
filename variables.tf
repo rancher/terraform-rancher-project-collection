@@ -1,12 +1,4 @@
 # Required variables
-variable "rancher2" {
-  type = object({
-    api_url   = string
-    insecure  = bool
-    token_key = string
-  })
-  description = "Rancher2 config, api_url, insecure and token_key are required"
-}
 variable "project" {
   type = object({
     cluster_name            = string
@@ -31,6 +23,11 @@ variable "disable_prefix" {
   type        = bool
   default     = false
   description = "By default, all project resources names will have the prefix `<project_name>-`. Set this to true to disable it."
+}
+variable "wait_for_catalogs" {
+  type        = bool
+  default     = true
+  description = "By default, project will wait until all catalogs are downloaded. Set this to false to disable it."
 }
 variable "namespaces" {
   type = map(object({

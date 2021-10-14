@@ -1,39 +1,45 @@
+# Create rancher cluster sync
+resource "rancher2_cluster_sync" "cluster_sync" {
+  cluster_id = data.rancher2_cluster.cluster.id
+  wait_catalogs = local.project_info.wait_for_catalogs
+}
+
 # Provision rancher project
 resource "rancher2_project" "project" {
-  cluster_id = data.rancher2_cluster.cluster.id
+  cluster_id = rancher2_cluster_sync.cluster_sync.cluster_id
   name       = local.project_info.name
   dynamic "resource_quota" {
     for_each = try({ for k, v in local.project_info.resource_quota : k => v }, {})
     content {
       project_limit {
-        limits_cpu               = try(resource_quota.value.project_limit["limits_cpu"], null)
-        limits_memory            = try(resource_quota.value.project_limit["limits_memory"], null)
-        requests_storage         = try(resource_quota.value.project_limit["requests_storage"], null)
-        config_maps              = try(resource_quota.value.project_limit["config_maps"], null)
-        persistent_volume_claims = try(resource_quota.value.project_limit["persistent_volume_claims"], null)
-        pods                     = try(resource_quota.value.project_limit["pods"], null)
-        replication_controllers  = try(resource_quota.value.project_limit["replication_controllers"], null)
-        requests_cpu             = try(resource_quota.value.project_limit["requests_cpu"], null)
-        requests_memory          = try(resource_quota.value.project_limit["requests_memory"], null)
-        secrets                  = try(resource_quota.value.project_limit["secrets"], null)
-        services                 = try(resource_quota.value.project_limit["services"], null)
-        services_load_balancers  = try(resource_quota.value.project_limit["services_load_balancers"], null)
-        services_node_ports      = try(resource_quota.value.project_limit["services_node_ports"], null)
+        limits_cpu               = lookup(resource_quota.value.project_limit, "limits_cpu", null)
+        limits_memory            = lookup(resource_quota.value.project_limit, "limits_memory", null)
+        requests_storage         = lookup(resource_quota.value.project_limit, "requests_storage", null)
+        config_maps              = lookup(resource_quota.value.project_limit, "config_maps", null)
+        persistent_volume_claims = lookup(resource_quota.value.project_limit, "persistent_volume_claims", null)
+        pods                     = lookup(resource_quota.value.project_limit, "pods", null)
+        replication_controllers  = lookup(resource_quota.value.project_limit, "replication_controllers", null)
+        requests_cpu             = lookup(resource_quota.value.project_limit, "requests_cpu", null)
+        requests_memory          = lookup(resource_quota.value.project_limit, "requests_memory", null)
+        secrets                  = lookup(resource_quota.value.project_limit, "secrets", null)
+        services                 = lookup(resource_quota.value.project_limit, "services", null)
+        services_load_balancers  = lookup(resource_quota.value.project_limit, "services_load_balancers", null)
+        services_node_ports      = lookup(resource_quota.value.project_limit, "services_node_ports", null)
       }
       namespace_default_limit {
-        limits_cpu               = try(resource_quota.value.namespace_default_limit["limits_cpu"], null)
-        limits_memory            = try(resource_quota.value.namespace_default_limit["limits_memory"], null)
-        requests_storage         = try(resource_quota.value.namespace_default_limit["requests_storage"], null)
-        config_maps              = try(resource_quota.value.namespace_default_limit["config_maps"], null)
-        persistent_volume_claims = try(resource_quota.value.namespace_default_limit["persistent_volume_claims"], null)
-        pods                     = try(resource_quota.value.namespace_default_limit["pods"], null)
-        replication_controllers  = try(resource_quota.value.namespace_default_limit["replication_controllers"], null)
-        requests_cpu             = try(resource_quota.value.namespace_default_limit["requests_cpu"], null)
-        requests_memory          = try(resource_quota.value.namespace_default_limit["requests_memory"], null)
-        secrets                  = try(resource_quota.value.namespace_default_limit["secrets"], null)
-        services                 = try(resource_quota.value.namespace_default_limit["services"], null)
-        services_load_balancers  = try(resource_quota.value.namespace_default_limit["services_load_balancers"], null)
-        services_node_ports      = try(resource_quota.value.namespace_default_limit["services_node_ports"], null)
+        limits_cpu               = lookup(resource_quota.value.namespace_default_limit, "limits_cpu", null)
+        limits_memory            = lookup(resource_quota.value.namespace_default_limit, "limits_memory", null)
+        requests_storage         = lookup(resource_quota.value.namespace_default_limit, "requests_storage", null)
+        config_maps              = lookup(resource_quota.value.namespace_default_limit, "config_maps", null)
+        persistent_volume_claims = lookup(resource_quota.value.namespace_default_limit, "persistent_volume_claims", null)
+        pods                     = lookup(resource_quota.value.namespace_default_limit, "pods", null)
+        replication_controllers  = lookup(resource_quota.value.namespace_default_limit, "replication_controllers", null)
+        requests_cpu             = lookup(resource_quota.value.namespace_default_limit, "requests_cpu", null)
+        requests_memory          = lookup(resource_quota.value.namespace_default_limit, "requests_memory", null)
+        secrets                  = lookup(resource_quota.value.namespace_default_limit, "secrets", null)
+        services                 = lookup(resource_quota.value.namespace_default_limit, "services", null)
+        services_load_balancers  = lookup(resource_quota.value.namespace_default_limit, "services_load_balancers", null)
+        services_node_ports      = lookup(resource_quota.value.namespace_default_limit, "services_node_ports", null)
       }
     }
   }
@@ -60,19 +66,19 @@ resource "rancher2_namespace" "namespaces" {
     for_each = try({ for k, v in each.value.resource_quota : k => v }, {})
     content {
       limit {
-        limits_cpu               = try(resource_quota.value.limit["limits_cpu"], null)
-        limits_memory            = try(resource_quota.value.limit["limits_memory"], null)
-        requests_storage         = try(resource_quota.value.limit["requests_storage"], null)
-        config_maps              = try(resource_quota.value.limit["config_maps"], null)
-        persistent_volume_claims = try(resource_quota.value.limit["persistent_volume_claims"], null)
-        pods                     = try(resource_quota.value.limit["pods"], null)
-        replication_controllers  = try(resource_quota.value.limit["replication_controllers"], null)
-        requests_cpu             = try(resource_quota.value.limit["requests_cpu"], null)
-        requests_memory          = try(resource_quota.value.limit["requests_memory"], null)
-        secrets                  = try(resource_quota.value.limit["secrets"], null)
-        services                 = try(resource_quota.value.limit["services"], null)
-        services_load_balancers  = try(resource_quota.value.limit["services_load_balancers"], null)
-        services_node_ports      = try(resource_quota.value.limit["services_node_ports"], null)
+        limits_cpu               = lookup(resource_quota.value.limit, "limits_cpu", null)
+        limits_memory            = lookup(resource_quota.value.limit, "limits_memory", null)
+        requests_storage         = lookup(resource_quota.value.limit, "requests_storage", null)
+        config_maps              = lookup(resource_quota.value.limit, "config_maps", null)
+        persistent_volume_claims = lookup(resource_quota.value.limit, "persistent_volume_claims", null)
+        pods                     = lookup(resource_quota.value.limit, "pods", null)
+        replication_controllers  = lookup(resource_quota.value.limit, "replication_controllers", null)
+        requests_cpu             = lookup(resource_quota.value.limit, "requests_cpu", null)
+        requests_memory          = lookup(resource_quota.value.limit, "requests_memory", null)
+        secrets                  = lookup(resource_quota.value.limit, "secrets", null)
+        services                 = lookup(resource_quota.value.limit, "services", null)
+        services_load_balancers  = lookup(resource_quota.value.limit, "services_load_balancers", null)
+        services_node_ports      = lookup(resource_quota.value.limit, "services_node_ports", null)
       }
     }
   }
