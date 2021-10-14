@@ -6,11 +6,13 @@ locals {
   }
 
   project_info = {
+    prefix_resource = !var.disable_prefix ? "${var.project.name}-" : ""
     cluster_name   = var.project.cluster_name
     disable_prefix = var.disable_prefix
+    wait_for_catalogs = var.wait_for_catalogs
     name           = var.project.name
     role_bindings = try(flatten([for role_k, role_v in var.project.role_bindings : {
-      name = !var.project.disable_prefix ? "${var.project.name}-${role_k}" : role_k
+      name = !var.disable_prefix ? "${var.project.name}-${role_k}" : role_k
       data = { for conf_k, conf_v in role_v : conf_k => conf_v }
     }]), null)
     resource_quota = var.project.project_limit != null && var.project.namespace_default_limit != null ? length(var.project.project_limit) > 0 && length(var.project.namespace_default_limit) > 0 ? [{
@@ -20,8 +22,8 @@ locals {
   }
 
   app_list = flatten([for app_k, app_v in var.apps : [{
-    name          = !local.project_info.disable_prefix ? "${local.project_info.name}-${app_k}" : app_k
-    namespace     = !local.project_info.disable_prefix ? "${local.project_info.name}-${app_v.namespace}" : app_v.namespace
+    name          = "${local.project_info.prefix_resource}${app_k}"
+    namespace     = "${local.project_info.prefix_resource}${app_v.namespace}"
     repo_name     = app_v.repo_name
     chart_name    = app_v.chart_name
     chart_version = app_v.chart_version
@@ -29,21 +31,21 @@ locals {
   }]])
 
   config_map_list = flatten([for conf_k, conf_v in var.config_maps : {
-    name      = !local.project_info.disable_prefix ? "${local.project_info.name}-${conf_k}" : "${conf_k}"
-    namespace = !local.project_info.disable_prefix ? "${local.project_info.name}-${conf_v.namespace}" : conf_v.namespace
+    name      = "${local.project_info.prefix_resource}${conf_k}"
+    namespace = "${local.project_info.prefix_resource}${conf_v.namespace}"
     data      = { for k, v in conf_v.data : k => v }
   }])
 
   namespace_list = flatten([for k, v in var.namespaces : {
-    name = !local.project_info.disable_prefix ? "${local.project_info.name}-${k}" : "${k}"
+    name = "${local.project_info.prefix_resource}${k}"
     resource_quota = v.limit != null ? length(v.limit) > 0 ? [{
       limit = try(v.limit, null)
     }] : null : null
   }])
 
   secret_list = flatten([for sec_k, sec_v in var.secrets : {
-    name      = !local.project_info.disable_prefix ? "${local.project_info.name}-${sec_k}" : "${sec_k}"
-    namespace = !local.project_info.disable_prefix ? "${local.project_info.name}-${sec_v.namespace}" : sec_v.namespace
+    name      = "${local.project_info.prefix_resource}${sec_k}"
+    namespace = "${local.project_info.prefix_resource}${sec_v.namespace}"
     type      = sec_v.type
     data      = { for k, v in sec_v.data : k => v }
   }])
