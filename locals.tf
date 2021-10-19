@@ -11,14 +11,14 @@ locals {
     disable_prefix = var.disable_prefix
     wait_for_catalogs = var.wait_for_catalogs
     name           = var.project.name
-    role_bindings = try(flatten([for role_k, role_v in var.project.role_bindings : {
+    role_bindings = var.project.role_bindings != null ? flatten([for role_k, role_v in var.project.role_bindings : {
       name = !var.disable_prefix ? "${var.project.name}-${role_k}" : role_k
       data = { for conf_k, conf_v in role_v : conf_k => conf_v }
-    }]), null)
+    }]) : []
     resource_quota = var.project.project_limit != null && var.project.namespace_default_limit != null ? length(var.project.project_limit) > 0 && length(var.project.namespace_default_limit) > 0 ? [{
-      project_limit           = try(var.project.project_limit, null)
-      namespace_default_limit = try(var.project.namespace_default_limit, null)
-    }] : null : null
+      project_limit           = var.project.project_limit
+      namespace_default_limit = var.project.namespace_default_limit
+    }] : [] : []
   }
 
   app_list = flatten([for app_k, app_v in var.apps : [{
@@ -39,8 +39,8 @@ locals {
   namespace_list = flatten([for k, v in var.namespaces : {
     name = "${local.project_info.prefix_resource}${k}"
     resource_quota = v.limit != null ? length(v.limit) > 0 ? [{
-      limit = try(v.limit, null)
-    }] : null : null
+      limit = v.limit
+    }] : [] : []
   }])
 
   secret_list = flatten([for sec_k, sec_v in var.secrets : {
