@@ -9,7 +9,7 @@ resource "rancher2_project" "project" {
   cluster_id = rancher2_cluster_sync.cluster_sync.cluster_id
   name       = local.project_info.name
   dynamic "resource_quota" {
-    for_each = try({ for k, v in local.project_info.resource_quota : k => v }, {})
+    for_each = { for k, v in local.project_info.resource_quota : k => v }
     content {
       project_limit {
         limits_cpu               = lookup(resource_quota.value.project_limit, "limits_cpu", null)
@@ -47,7 +47,7 @@ resource "rancher2_project" "project" {
 
 # Provision rancher project role template bindings
 resource "rancher2_project_role_template_binding" "project_role_template_bindings" {
-  for_each           = try({ for k, v in local.project_info.role_bindings : v.name => v }, {})
+  for_each           = { for k, v in local.project_info.role_bindings : v.name => v }
   name               = each.key
   project_id         = rancher2_project.project.id
   role_template_id   = each.value.data.role_template_id
@@ -59,11 +59,11 @@ resource "rancher2_project_role_template_binding" "project_role_template_binding
 
 # Provision rancher project namespaces
 resource "rancher2_namespace" "namespaces" {
-  for_each   = try({ for k, v in local.namespace_list : v.name => v }, {})
+  for_each   = { for k, v in local.namespace_list : v.name => v }
   name       = each.key
   project_id = rancher2_project.project.id
   dynamic "resource_quota" {
-    for_each = try({ for k, v in each.value.resource_quota : k => v }, {})
+    for_each = { for k, v in each.value.resource_quota : k => v }
     content {
       limit {
         limits_cpu               = lookup(resource_quota.value.limit, "limits_cpu", null)
@@ -86,7 +86,7 @@ resource "rancher2_namespace" "namespaces" {
 
 # Provision rancher project config maps
 resource "rancher2_config_map_v2" "config_maps" {
-  for_each   = try({ for k, v in local.config_map_list : v.name => v }, {})
+  for_each   = { for k, v in local.config_map_list : v.name => v }
   cluster_id = rancher2_project.project.cluster_id
   name       = each.key
   namespace  = rancher2_namespace.namespaces[each.value.namespace].name
@@ -95,7 +95,7 @@ resource "rancher2_config_map_v2" "config_maps" {
 
 # Provision rancher project secrets
 resource "rancher2_secret_v2" "secrets" {
-  for_each   = try({ for k, v in local.secret_list : v.name => v }, {})
+  for_each   = { for k, v in local.secret_list : v.name => v }
   cluster_id = rancher2_project.project.cluster_id
   name       = each.key
   namespace  = rancher2_namespace.namespaces[each.value.namespace].name
@@ -105,7 +105,7 @@ resource "rancher2_secret_v2" "secrets" {
 
 # Provision rancher project apps
 resource "rancher2_app_v2" "apps" {
-  for_each      = try({ for k, v in local.app_list : v.name => v }, {})
+  for_each      = { for k, v in local.app_list : v.name => v }
   cluster_id    = rancher2_project.project.cluster_id
   project_id    = rancher2_project.project.id
   name          = each.key
