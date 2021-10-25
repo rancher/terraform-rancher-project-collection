@@ -1,6 +1,6 @@
 # Create rancher cluster sync
 resource "rancher2_cluster_sync" "cluster_sync" {
-  cluster_id = data.rancher2_cluster.cluster.id
+  cluster_id    = data.rancher2_cluster.cluster.id
   wait_catalogs = local.project_info.wait_for_catalogs
 }
 
@@ -43,6 +43,15 @@ resource "rancher2_project" "project" {
       }
     }
   }
+  dynamic "container_resource_limit" {
+    for_each = { for k, v in local.project_info.container_resource_limit : k => v }
+    content {
+      limits_cpu      = lookup(container_resource_limit.value.limit, "limits_cpu", null)
+      limits_memory   = lookup(container_resource_limit.value.limit, "limits_memory", null)
+      requests_cpu    = lookup(container_resource_limit.value.limit, "requests_cpu", null)
+      requests_memory = lookup(container_resource_limit.value.limit, "requests_memory", null)
+    }
+  }
 }
 
 # Provision rancher project role template bindings
@@ -80,6 +89,15 @@ resource "rancher2_namespace" "namespaces" {
         services_load_balancers  = lookup(resource_quota.value.limit, "services_load_balancers", null)
         services_node_ports      = lookup(resource_quota.value.limit, "services_node_ports", null)
       }
+    }
+  }
+  dynamic "container_resource_limit" {
+    for_each = { for k, v in each.value.container_resource_limit : k => v }
+    content {
+      limits_cpu      = lookup(container_resource_limit.value.limit, "limits_cpu", null)
+      limits_memory   = lookup(container_resource_limit.value.limit, "limits_memory", null)
+      requests_cpu    = lookup(container_resource_limit.value.limit, "requests_cpu", null)
+      requests_memory = lookup(container_resource_limit.value.limit, "requests_memory", null)
     }
   }
 }
