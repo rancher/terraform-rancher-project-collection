@@ -1,11 +1,12 @@
 # Required variables
 variable "project" {
   type = object({
-    cluster_name            = string
-    name                    = string
-    project_limit           = map(string)
-    namespace_default_limit = map(string)
-    role_bindings           = map(map(string))
+    cluster_name             = string
+    name                     = string
+    project_limit            = map(string)
+    namespace_default_limit  = map(string)
+    container_resource_limit = map(string)
+    role_bindings            = map(map(string))
   })
   description = "Rancher2 project to be created"
 }
@@ -31,7 +32,8 @@ variable "wait_for_catalogs" {
 }
 variable "namespaces" {
   type = map(object({
-    limit = map(string)
+    limit                    = map(string)
+    container_resource_limit = map(string)
   }))
   default     = {}
   description = "Add namespaces to be created within the project"

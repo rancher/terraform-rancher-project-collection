@@ -6,11 +6,11 @@ locals {
   }
 
   project_info = {
-    prefix_resource = !var.disable_prefix ? "${var.project.name}-" : ""
-    cluster_name   = var.project.cluster_name
-    disable_prefix = var.disable_prefix
+    prefix_resource   = !var.disable_prefix ? "${var.project.name}-" : ""
+    cluster_name      = var.project.cluster_name
+    disable_prefix    = var.disable_prefix
     wait_for_catalogs = var.wait_for_catalogs
-    name           = var.project.name
+    name              = var.project.name
     role_bindings = var.project.role_bindings != null ? flatten([for role_k, role_v in var.project.role_bindings : {
       name = !var.disable_prefix ? "${var.project.name}-${role_k}" : role_k
       data = { for conf_k, conf_v in role_v : conf_k => conf_v }
@@ -18,6 +18,9 @@ locals {
     resource_quota = var.project.project_limit != null && var.project.namespace_default_limit != null ? length(var.project.project_limit) > 0 && length(var.project.namespace_default_limit) > 0 ? [{
       project_limit           = var.project.project_limit
       namespace_default_limit = var.project.namespace_default_limit
+    }] : [] : []
+    container_resource_limit = var.project.container_resource_limit != null ? length(var.project.container_resource_limit) > 0 ? [{
+      limit = var.project.container_resource_limit
     }] : [] : []
   }
 
@@ -40,6 +43,9 @@ locals {
     name = "${local.project_info.prefix_resource}${k}"
     resource_quota = v.limit != null ? length(v.limit) > 0 ? [{
       limit = v.limit
+    }] : [] : []
+    container_resource_limit = v.container_resource_limit != null ? length(v.container_resource_limit) > 0 ? [{
+      limit = v.container_resource_limit
     }] : [] : []
   }])
 

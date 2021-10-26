@@ -26,6 +26,7 @@ variable "project" {
     name = string
     project_limit = map(string)
     namespace_default_limit = map(string)
+    container_resource_limit = map(string)
     role_bindings = map(map(string))
   })
   description = "Rancher2 project to be created"
@@ -51,8 +52,11 @@ variable "wait_for_catalogs" {
   description = "By default, project will wait until all catalogs are downloaded. Set this to false to disable it."
 }
 variable "namespaces" {
-  type = list(string)
-  default = []
+  type = map(object({
+    limit = map(string)
+    container_resource_limit = map(string)
+  }))
+  default     = {}
   description = "Add namespaces to be created within the project"
 }
 variable "secrets" {
@@ -149,6 +153,12 @@ module "rancher2-project" {
       limits_memory = "1Gi"
       requests_storage = "10Gi"
     }
+    container_resource_limit = {
+      limits_cpu = "20m"
+      limits_memory = "20Mi"
+      requests_cpu = "1m"
+      requests_memory = "1Mi"
+    }
     role_bindings = {
       admin = {
         role_template_id = "admin"
@@ -164,9 +174,16 @@ module "rancher2-project" {
         limits_memory = "2Gi"
         requests_storage = "10Gi"
       }
+      container_resource_limit = {
+        limits_cpu = "20m"
+        limits_memory = "20Mi"
+        requests_cpu = "1m"
+        requests_memory = "1Mi"
+      }
     }
     grafana = {
       limit = null
+      container_resource_limit = null
     }
   }
   config_maps = {
